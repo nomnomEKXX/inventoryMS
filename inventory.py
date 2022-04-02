@@ -48,7 +48,7 @@ def addInventory(userEmail):
 
 
 # UPDATE / ADD EXISTING INVENTORY
-@app.route("/inventory/update/<userEmail>", methods=["POST", "GET"])
+@app.route("/inventory/update/<userEmail>", methods=["POST", "GET", "PUT"])
 def updateInventory(userEmail):
     newFoods = request.get_json()
     # newFoods = {
