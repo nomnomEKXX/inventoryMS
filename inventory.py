@@ -7,17 +7,18 @@ from flask import Flask, request, jsonify
 cred = credentials.Certificate(
     {
         "type": "service_account",
-        "project_id": "nomnom-db",
-        "private_key_id": "d8d4891c11e74bf544eeadf17e6a5605d9577382",
-        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCo+kUgAqCNm1j+\nc000e87vSjyi1Y5WfLx8v1ma8KrBbeJ3aNbV9iTeNqqIWAnr/qsC8ctxiO8FSBKp\naycpjRjWDpCVkE7V5FxUxOmyu9bB84FVS1Udr+u9d2/9gaZ2oia3xqzBYrh5fquM\n+fDUIdnB1Zy7A267xUGdLn4gw1xweELTDB7O58idF71sb1ipBVvy1EfWN1htJejU\nzMujQJK+gfijjYVujPYkNUp1cjQUGICVZj1JHEGVX5cvuMqtr9ij7biM1NPPpv3D\nMOhzKQLhgK/Ajo3T4uZfy5uOGzxPMQWuX6VGCcFSszvyALx6HHY5IDgU5bqQ1edd\nlf4qifedAgMBAAECggEALKbluU24a3MPkz2YuzO0PRta5pSUJlqT3EscPIs4NCD7\nZR55FtUSbP35FkpdZNVJD2AhqIDM2JJxC//au2ojk/0JS9x0WKUdmPDn6GkmmN3l\n4Uok1dF08/4pw82M1XCH1qxTXk7d/IzyfDBX6VaAmm3+GpUPn+LCMezlO3ckaDuQ\n6CgWLbp8u9gGMqQkxG3oqYUjtgeFjRXkw8ILIhn0pEPGBItMyQexK6pbPGeltkq5\nOcxvNtTm4SsqYgdx79Do2FUvFuwhHcz2Fugk6gg0dB8JHHamNlrG9SOsFw9Uwm2r\nYY1C4B6z1r0T8mY8mazID3qvsDxk/h93cYPlpWdIKQKBgQDivg3XdhJtXqTd8T9J\n6qcMafbB9xbAVrfjqnpd+9CVHtany6tyd9KlDhJEPINZhjoYynr/5mOKFz6SZdlG\n+u21s8l4Pu54lrDIG2z4mULMfAkNa7Be9thLLJ3Qefahfswyoqe26aeNbtQRZlqX\niw6mFp4dT7BZIhIEinUE33l8lwKBgQC+yBS+K4BDO4pJm7u6xYroVT+Zog7kHmug\nrisQjY1lgrCS+YIWcpEhWV+tdUp5BXsTUZ7M36FdcBXKcJ69Jzr8oi3l1cLCjUdl\nSS9J5wJo8nBfYARt/6WfqlgzSHsdDLqYGv5vtxgVtoGN8xA1E8/ZeS4999n6bAJG\nFpNQBD5P6wKBgCe+BjEQyfQPlbgtE9nB3lvHqu+efodh68Nk2yPkAlBQ4nDwuvFK\nXUp+5+a78I3dgAteWibGXAYVQutoHKhbTRT/GT4RUb0jNIMug3AjdNjgmLmYeYZ7\nn7e1b0feSMNPtTze06S02aBpn5QZK6HKRtwHtNkQYamN1jijiBU9kk6rAoGBAKAz\ncvedn77VKHJXC3TynIory5Q+uTJlOQtcNV1Y//rVm2BPlCU1XxkZ63XEoByvtYGr\ncCWpQ98qV6H+n81GPAoYRWJR9ZFZATLUGZl9GlD2A9aS0iVsHq/MYvPtUTQ7lBRV\n1oIIxXi2IGQKTvnDAS4ky+fNUIUwXVhtbJYsegaxAoGANUKGJmOMOSIbDjwgexva\n+bjVnQGUthCV/x/UqeFMdOKM2doPu78uQWXG9u7nxN63b3FWlCuKHnjq7nA5zEhz\nNWf50KWtQ2BIaGvAQJhw+ti9CuVi18WOM0nXfRjI/+0YsLcWQIZjKAIcvc83cwjX\nSOvsvytCXrSg65ayi7xb9t0=\n-----END PRIVATE KEY-----\n",
-        "client_email": "firebase-adminsdk-bhktu@nomnom-db.iam.gserviceaccount.com",
-        "client_id": "108783214540036148659",
+        "project_id": "nomnominventory-aeb00",
+        "private_key_id": "edb7a07dac0144b5fa99bdde427fd5ce5dcb4c9b",
+        "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCWEvDYy1ksbuZ8\nRfNgbJtHumRd7ymuKu+ubJSYXF3hMYuyY2aKrQ7jWYNvcOYQzcRRdrm7zhnYMcK6\nR8o6dx5kMFoq5lsv/NciGz6BPzmn+E/W2G0b5z71/n+HQBevjGwrDxCdLN1VJzE8\ne4/JMN4Sbk81Z1kx94+euwePzaNkOTMzU9zJIhJRuSZm7OXae4EEuEcfp1642dNd\nE+vuuIbpg8L3ElanpfkrvL4wHVPR++CrXY4ExoKHUXvPJJacCYYmCDnAySqldGEu\nwitJn31LYijYOJM4vUYKDzs71RLZQzahItHjyWoNhmqAZC7bNjRCaMRJcz6drmbE\nmrNjTtZJAgMBAAECggEAHr1ieAWvDlro+yuY3ndglyCmzlbewr4ouiGjjlHdKPNt\nGe0iY+Vu10LOmVUWyvpa7BTVlpJw2MfYiy+JTNB5eSwuS/tDUmEH8ASEmRTKSo2i\nTO+n6b9ENj8bACkwsNSik29Sh99YtsiAXVMx8JQB6OSPdPDmZEXBNVI6Ckqk3TJJ\n5HHwdMpo2ABGYv3SD999bqG5J89Jzgye9wyCngcPzxUGbW1CLmrL9le8PaD5wJr7\n4I/Q5jT8eQ5DvlG7qhhIZoROcBkrr3R/CYkxKlXmmK8zWownb4nQ06hAVC2LomrT\nrztZwrNaiTWj6228hoiTdtmQcEhG6UY7DMJyiIaLAQKBgQDKJ+eomIABzRL2lHoJ\nhkdMSCxKj1n9Cl5pqd+SJ4BSUHREuk1kr4HOO9rFjRejSMRnRejZXhBitKoObwHV\n1R/F66VYKmlF/5//w2pZLY6qJ7NIlHdmHCBm8HKYosgt6/ytKH+GoyobdoSorY3C\nWHP7mUjdZdQ6tyyeYps8TcHQ9QKBgQC+C86qcz+N4O2d6PKcmgxJNzkmLxyH33wU\ngAeeOvuG3VD9bYTgWsEb9tR/GD5NVxX6Pntj+7qma58/+h6YlH3+fxoqu8KHa4wY\nOg+bbMoEmL2Y/A9AHJbDE6Qv8FtQowHEeUQ6gflfIdXftJk/RVTLve4HC20khOvi\nQuxBel/LhQKBgA1LborB7LkxmWup/BSgRhQYMwF8R/jCM89TIqbj/iZrsBnM/sX+\nXNUJTqvrSYCtim0YReX1r7IuG3jzh/VeHMbRZoBT2bSGySjy2w2eV2GNVtcRHIEU\nnHTon0C2g9+xQ17H6Qsbs+s2cib9svLzCj2jqQ0WY0yxOzf3WCoxGuv5AoGAYKVA\nhA330/7+178PIfR1KwaaWYC70Z0lTIePWDhGkV8bQMXhPPbqHX54selyRYJz+r6r\noTzyvo8cfTyFMrLRIAsjE3hIhPV8WRWtuiyoz42dXZ9RYhkn0iy64mYpCejbjT7e\nI6LVXjumuAzvoe1wIeyEj7CP4HJ4Qqgl3WaOMMECgYBrdI6V5oAuouVV/IsDsuUk\nVXd7XEF/VNUvdr6sPGj7PAjBtRlot+P2SEdg204AAIRi5yxENYi1V/C2BfHVLF3n\nxOM0hUXfwdw7Uq+tQhmZkkrgT/VBu5rLSyuL1mRL275H9S87KzhbrMNv5dBLmuFo\nSySY0Dyo8pAQGZ8oMFelXw==\n-----END PRIVATE KEY-----\n",
+        "client_email": "firebase-adminsdk-v44zm@nomnominventory-aeb00.iam.gserviceaccount.com",
+        "client_id": "101195053370382275550",
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-bhktu%40nomnom-db.iam.gserviceaccount.com",
+        "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-v44zm%40nomnominventory-aeb00.iam.gserviceaccount.com",
     }
 )
+
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
@@ -153,5 +154,4 @@ def deleteInventory(userEmail):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, debug=True)
-
+    app.run(host="0.0.0.0", port=5000, debug=True)
