@@ -24,15 +24,19 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 app = Flask(__name__)
 
+
 # RETRIEVE INVENTORY
 @app.route("/inventory/<userEmail>")
 def getInventory(userEmail):
     try:
         userInventory = db.collection("inventory").document(userEmail).get().to_dict()
     except:
-        return {"code": 401, "message": "Error occured retrieving inventory"}
+        return {"code": 500, "message": "Error occurred retrieving inventory"}
 
-    return {"code": 201, "data": userInventory}
+    if userInventory.exists:
+        return {"code": 200, "data": userInventory}
+
+    return {"code": 404, "message": "Seller Does not Exist"}
 
 
 # CREATE INVENTORY FOR NEW USER
@@ -42,9 +46,9 @@ def addInventory(userEmail):
     try:
         db.collection("inventory").document(userEmail).set(data)
     except:
-        return {"code": 400, "message": "Error occured when creating inventory"}
+        return {"code": 500, "message": "Error occured when creating inventory"}
 
-    return {"code": 200, "message": "Inventory Created"}
+    return {"code": 201, "message": "Inventory Created"}
 
 
 # UPDATE / ADD EXISTING INVENTORY
@@ -93,8 +97,10 @@ def updateInventory(userEmail):
                 successUpdate += food_name + ", "
             except:
                 return {
-                    "code": 400,
-                    "message": "Failed to Update {} details".format(food_name),
+                    "code": 500,
+                    "message": "Failed to Update {} details. Update terminated".format(
+                        food_name
+                    ),
                 }
         # NEW DISH
         else:
@@ -103,8 +109,10 @@ def updateInventory(userEmail):
                 successAdd += food_name + ", "
             except:
                 return {
-                    "code": 400,
-                    "message": "Failed to Add {} details".format(food_name),
+                    "code": 500,
+                    "message": "Failed to Add {} details. Update terminated".format(
+                        food_name
+                    ),
                 }
 
     if successUpdate and successAdd:
@@ -118,22 +126,22 @@ def updateInventory(userEmail):
     else:
         message += "Succesfully added details of {}".format(successAdd[:-2])
 
-    return {"code": 201, "message": message}
+    return {"code": 200, "message": message}
 
 
 # DELETE FOOD
 @app.route("/inventory/delete/<userEmail>", methods=["DELETE"])
 def deleteInventory(userEmail):
-    # target = {
-    #     "gyoza": {
-    #         "item_quantity": 6,
-    #         "food_desc": "Yummy Gyoza",
-    #         "food_name": "Fried Gyozas",
-    #         "image": "https://images.unsplash.com/photo-1609183590563-7710ba1f90a9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80",
-    #         "old_price": "$6.00",
-    #         "current_price": "$3.00",
-    #     }
-    # }
+    target = {
+        "gyoza": {
+            "item_quantity": 6,
+            "food_desc": "Yummy Gyoza",
+            "food_name": "Fried Gyozas",
+            "image": "https://images.unsplash.com/photo-1609183590563-7710ba1f90a9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80",
+            "old_price": "$6.00",
+            "current_price": "$3.00",
+        }
+    }
 
     target = request.get_json(())
     userInventory = db.collection("inventory").document(userEmail).get().to_dict()
@@ -145,7 +153,7 @@ def deleteInventory(userEmail):
             dbSnap.update({targetItem: firestore.DELETE_FIELD})
 
         except:
-            return {"code": 400, "message": "Failed to delete {}".format(targetItem)}
+            return {"code": 500, "message": "Failed to delete {}".format(targetItem)}
 
     else:
         return {"code": 200, "message": "SPAM, DELETED"}
