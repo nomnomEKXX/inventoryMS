@@ -239,6 +239,10 @@ def deleteInventory(sellerID):
 
 @app.route("/inventory/verify/<uid>", methods=["GET", "POST", "PUT"])
 def verifyOrder(uid):
+    
+    #VARIABLE NAMES MAY BE WRONG, THE STRUCUTURE OF DATA ABIT WEIRD, I CHANGED STOREID TO EMAIL FIRST SINCE DB HAVENT CHANGE.
+    # WHY GOT COUNTER AND QUANTITY 
+
     # data = {
     #     "order": {
     #         "status": "pending",
