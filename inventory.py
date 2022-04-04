@@ -3,6 +3,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 from flask import Flask, request, jsonify
+import requests
 
 cred = credentials.Certificate(
     {
@@ -26,10 +27,10 @@ app = Flask(__name__)
 
 
 # RETRIEVE INVENTORY
-@app.route("/inventory/<userEmail>")
-def getInventory(userEmail):
+@app.route("/inventory/<sellerID>")
+def getInventory(sellerID):
     try:
-        userInventory = db.collection("inventory").document(userEmail).get().to_dict()
+        userInventory = db.collection("inventory").document(sellerID).get().to_dict()
     except:
         return {"code": 500, "message": "Error occurred retrieving inventory"}
 
@@ -40,20 +41,88 @@ def getInventory(userEmail):
 
 
 # CREATE INVENTORY FOR NEW USER
-@app.route("/inventory/add/<userEmail>")
-def addInventory(userEmail):
+@app.route("/inventory/add/<sellerID>",  methods=["POST", "GET", "PUT"])
+def addInventory(sellerID):
     data = request.get_json()
-    try:
-        db.collection("inventory").document(userEmail).set(data)
-    except:
-        return {"code": 500, "message": "Error occured when creating inventory"}
+    # store_name = data['storeName']
+    newFoods = data['foodListings']
 
-    return {"code": 201, "message": "Inventory Created"}
+    doc_ref = db.collection(u'inventory').document(sellerID)
+    doc = doc_ref.get()
+
+    # UPDATE THE EXISTING DOCUMENT  
+    if doc.exists:
+        print('document exists')
+
+        successUpdate = ""
+        successAdd = ""
+        message = ""
+
+        userInventory = db.collection("inventory").document(sellerID).get().to_dict()
+        invSnap = db.collection("inventory").document(sellerID)
+
+        for food_name, foodDetails in newFoods.items():
+            # UPDATE DISH
+            if food_name in userInventory.keys():
+                try:
+                    invSnap.update({food_name: foodDetails})
+                    successUpdate += food_name + ", "
+                except:
+                    return {
+                        "code": 500,
+                        "message": "Failed to Update {} details. Update terminated".format(
+                            food_name
+                        ),
+                    }
+            # NEW DISH
+            else:
+                try:
+                    invSnap.update({food_name: foodDetails})
+                    successAdd += food_name + ", "
+                except:
+                    return {
+                        "code": 500,
+                        "message": "Failed to Add {} details. Update terminated".format(
+                            food_name
+                        ),
+                    }
+
+        if successUpdate and successAdd:
+            message += (
+                "Sucessfully updated details of {}. Succesfully added details of {}".format(
+                    successUpdate[:-2], successAdd[:-2]
+                )
+            )
+        elif successUpdate:
+            message += "Sucessfully updated details of {}".format(successUpdate[:-2])
+        else:
+            message += "Succesfully added details of {}".format(successAdd[:-2])
+
+        fbMessage = message
+        response = requests.post("http://proje-loadb-1j6v4lus8l5i3-dfd4e68a6dde11d2.elb.us-east-1.amazonaws.com:4545/create_new_post", data={"message": fbMessage})        
+
+        return {"code": 200, "message": message}
+
+
+    # CREATE NEW DOCUMENT FOR INVENTORY
+    else: 
+
+        try:
+            db.collection("inventory").document(sellerID).set(data)
+            foodLink = f'https://nomnomis216.netlify.app/foodListings?shopName={sellerID}'
+            response = requests.post("http://proje-loadb-1j6v4lus8l5i3-dfd4e68a6dde11d2.elb.us-east-1.amazonaws.com:4545/create_new_post", data={"message": f'New food has been added! Check them out now with the link! {foodLink}'})        
+
+        except:
+            return {"code": 500, "message": "Error occured when creating inventory"}
+
+        return {"code": 201, "message": "Inventory Created"}
+
+
 
 
 # UPDATE / ADD EXISTING INVENTORY
-@app.route("/inventory/update/<userEmail>", methods=["POST", "GET", "PUT"])
-def updateInventory(userEmail):
+@app.route("/inventory/update/<sellerID>", methods=["POST", "GET", "PUT"])
+def updateInventory(sellerID):
     newFoods = request.get_json()
     # newFoods = {
     #     "gyoza": {
@@ -86,8 +155,8 @@ def updateInventory(userEmail):
     successAdd = ""
     message = ""
 
-    userInventory = db.collection("inventory").document(userEmail).get().to_dict()
-    invSnap = db.collection("inventory").document(userEmail)
+    userInventory = db.collection("inventory").document(sellerID).get().to_dict()
+    invSnap = db.collection("inventory").document(sellerID)
 
     for food_name, foodDetails in newFoods.items():
         # UPDATE DISH
@@ -130,8 +199,8 @@ def updateInventory(userEmail):
 
 
 # DELETE FOOD
-@app.route("/inventory/delete/<userEmail>", methods=["DELETE"])
-def deleteInventory(userEmail):
+@app.route("/inventory/delete/<sellerID>", methods=["DELETE"])
+def deleteInventory(sellerID):
     target = {
         "gyoza": {
             "item_quantity": 6,
@@ -144,8 +213,8 @@ def deleteInventory(userEmail):
     }
 
     target = request.get_json(())
-    userInventory = db.collection("inventory").document(userEmail).get().to_dict()
-    dbSnap = db.collection("inventory").document(userEmail)
+    userInventory = db.collection("inventory").document(sellerID).get().to_dict()
+    dbSnap = db.collection("inventory").document(sellerID)
     targetItem = list(target.keys())[0]
 
     if targetItem in userInventory:
@@ -160,6 +229,9 @@ def deleteInventory(userEmail):
 
     return {"code": 200, "message": "{} Successfully Deleted".format(targetItem)}
 
+# ENDPT TAKE IN ORDER OBJECT AND COMPARE AGAINST DB TO SEE IF QTY IS SUFFICIENT
+
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=6000, debug=True)
