@@ -31,11 +31,12 @@ def getInventory():
     data = request.get_json()
     sellerID = data['storeID']
     try:
+        check_doc = db.collection(u"inventory").document(sellerID).get()
         userInventory = db.collection("inventory").document(sellerID).get().to_dict()
     except:
         return {"code": 500, "message": "Error occurred retrieving inventory"}
 
-    if userInventory.exists:
+    if check_doc.exists:
         return {"code": 200, "data": userInventory}
 
     return {"code": 404, "message": "Seller Does not Exist"}
