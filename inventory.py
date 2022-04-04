@@ -96,13 +96,13 @@ def addInventory(sellerID):
         else:
             message += "Succesfully added details of {}".format(successAdd[:-2])
 
-        fbMessage = message
-        response = requests.post(
-            "http://proje-loadb-1j6v4lus8l5i3-dfd4e68a6dde11d2.elb.us-east-1.amazonaws.com:4545/create_new_post",
-            data={"message": fbMessage},
-        )
+        fbMessage = { "message" : message }
 
-        return {"code": 200, "message": message}
+        print("SEND TO FACEBOOK GRAPH API")
+        response = requests.post("http://proje-loadb-1j6v4lus8l5i3-dfd4e68a6dde11d2.elb.us-east-1.amazonaws.com:4545/create_new_post", data=fbMessage )
+        print("FACEBOOK RESPONSE", response)
+
+        return {"code": 200, "message": message, "facebook": response}
 
     # CREATE NEW DOCUMENT FOR INVENTORY
     else:
@@ -111,24 +111,24 @@ def addInventory(sellerID):
             foodLink = (
                 f"https://nomnomis216.netlify.app/foodListings?shopName={sellerID}"
             )
-            response = requests.post(
-                "http://proje-loadb-1j6v4lus8l5i3-dfd4e68a6dde11d2.elb.us-east-1.amazonaws.com:4545/create_new_post",
-                data={
-                    "message": f"New food has been added! Check them out now with the link! {foodLink}"
-                },
-            )
+            fbMessage = f"New food has been added! Check them out now with the link! {foodLink}"
+
+            postMessage = { "message" : fbMessage}
+            print("SEND TO FACEBOOK GRAPH API")
+            response = requests.post("http://proje-loadb-1j6v4lus8l5i3-dfd4e68a6dde11d2.elb.us-east-1.amazonaws.com:4545/create_new_post", data=postMessage) 
+            print("FACEBOOK RESPONSE", response)
 
         except:
             return {"code": 500, "message": "Error occured when creating inventory"}
 
-        return {"code": 201, "message": "Inventory Created"}
+        return {"code": 201, "message": "Inventory Created", "facebook": response}
 
 
 # UPDATE / ADD EXISTING INVENTORY
 @app.route("/inventory/update/<sellerID>", methods=["POST", "GET", "PUT"])
 def updateInventory(sellerID):
     newFoods = request.get_json()
-    # newFoods = {
+    # {
     #     "gyoza": {
     #         "item_quantity": 6,
     #         "food_desc": "Yummy Gyoza",
@@ -152,7 +152,7 @@ def updateInventory(sellerID):
     #         "image": "https://images.unsplash.com/photo-1618173745201-8e3bf8978acc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=930&q=80",
     #         "old_price": "$10.00",
     #         "current_price": "$10.00",
-    #     },
+    #     }
     # }
 
     successUpdate = ""
@@ -205,16 +205,16 @@ def updateInventory(sellerID):
 # DELETE FOOD
 @app.route("/inventory/delete/<sellerID>", methods=["DELETE"])
 def deleteInventory(sellerID):
-    target = {
-        "gyoza": {
-            "item_quantity": 6,
-            "food_desc": "Yummy Gyoza",
-            "food_name": "Fried Gyozas",
-            "image": "https://images.unsplash.com/photo-1609183590563-7710ba1f90a9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80",
-            "old_price": "$6.00",
-            "current_price": "$3.00",
-        }
-    }
+    # target = {
+    #     "gyoza": {
+    #         "item_quantity": 6,
+    #         "food_desc": "Yummy Gyoza",
+    #         "food_name": "Fried Gyozas",
+    #         "image": "https://images.unsplash.com/photo-1609183590563-7710ba1f90a9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80",
+    #         "old_price": "$6.00",
+    #         "current_price": "$3.00",
+    #     }
+    # }
 
     target = request.get_json(())
     userInventory = db.collection("inventory").document(sellerID).get().to_dict()
@@ -320,4 +320,4 @@ def verifyOrder(uid):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5700, debug=True)
