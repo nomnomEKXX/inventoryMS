@@ -96,13 +96,14 @@ def addInventory(sellerID):
         else:
             message += "Succesfully added details of {}".format(successAdd[:-2])
 
-        fbMessage = { "message" : message }
+        # fbMessage = { "message" : "" }
 
-        print("SEND TO FACEBOOK GRAPH API")
-        response = requests.post("http://proje-loadb-1j6v4lus8l5i3-dfd4e68a6dde11d2.elb.us-east-1.amazonaws.com:4545/create_new_post", data=fbMessage )
-        print("FACEBOOK RESPONSE", response)
+        # print("SEND TO FACEBOOK GRAPH API -1")
+        # response = requests.post("http://proje-LoadB-1RCK4FEMDS4L6-5ad76914379a89cd.elb.us-east-1.amazonaws.com:4545/create_new_post", data = fbMessage )
+        # print(f"FACEBOOK RESPONSE: {response}")
 
-        return {"code": 200, "message": message, "facebook": response}
+        return {"message": "Food has been restocked...nom nom nom"}
+        # return str(response)
 
     # CREATE NEW DOCUMENT FOR INVENTORY
     else:
@@ -113,15 +114,17 @@ def addInventory(sellerID):
             )
             fbMessage = f"New food has been added! Check them out now with the link! {foodLink}"
 
-            postMessage = { "message" : fbMessage}
-            print("SEND TO FACEBOOK GRAPH API")
-            response = requests.post("http://proje-loadb-1j6v4lus8l5i3-dfd4e68a6dde11d2.elb.us-east-1.amazonaws.com:4545/create_new_post", data=postMessage) 
-            print("FACEBOOK RESPONSE", response)
+            # postMessage = { "message" : fbMessage}
+
+            # print("SEND TO FACEBOOK GRAPH API -2")
+            # response = requests.post("http://proje-LoadB-1RCK4FEMDS4L6-5ad76914379a89cd.elb.us-east-1.amazonaws.com:4545/create_new_post", data = postMessage) 
+            # print("FACEBOOK RESPONSE", response)
 
         except:
             return {"code": 500, "message": "Error occured when creating inventory"}
 
-        return {"code": 201, "message": "Inventory Created", "facebook": response}
+        # return str(response)
+        return {"message": fbMessage}
 
 
 # UPDATE / ADD EXISTING INVENTORY
@@ -237,8 +240,8 @@ def deleteInventory(sellerID):
 # ENDPT TAKE IN ORDER OBJECT AND COMPARE AGAINST DB TO SEE IF QTY IS SUFFICIENT
 
 
-@app.route("/inventory/verify/<uid>", methods=["GET", "POST", "PUT"])
-def verifyOrder(uid):
+@app.route("/inventory/verify/<orderID>", methods=["GET", "POST", "PUT"])
+def verifyOrder(orderID):
     
     #VARIABLE NAMES MAY BE WRONG, THE STRUCUTURE OF DATA ABIT WEIRD, I CHANGED STOREID TO EMAIL FIRST SINCE DB HAVENT CHANGE.
     # WHY GOT COUNTER AND QUANTITY 
@@ -294,7 +297,10 @@ def verifyOrder(uid):
             failedMessage += "Ordered Quantity for {} exceeded limit. Order Process TERMINATED".format(
                 foodName
             )
-            return {"code": 400, "message": failedMessage}
+            return {
+                "response": "reject order",
+                "code": 400, 
+            }
 
         else:
             updatedQuantity = inventQuantity - orderedQuantity
@@ -309,13 +315,13 @@ def verifyOrder(uid):
 
             except:
                 return {
+                    "response": "reject order",
                     "code": 500,
-                    "message": "Failed to place order for {}".format(foodName),
                 }
 
     return {
+        "response": "create order",
         "code": 200,
-        "message": "Successfully placed order. {}".format(successMessage),
     }
 
 
