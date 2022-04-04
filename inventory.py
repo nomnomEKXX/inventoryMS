@@ -3,7 +3,6 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 from flask import Flask, request, jsonify
-import requests
 
 cred = credentials.Certificate(
     {
@@ -27,8 +26,10 @@ app = Flask(__name__)
 
 
 # RETRIEVE INVENTORY
-@app.route("/inventory/<sellerID>")
-def getInventory(sellerID):
+@app.route("/inventory")
+def getInventory():
+    data = request.get_json()
+    sellerID = data['storeID']
     try:
         userInventory = db.collection("inventory").document(sellerID).get().to_dict()
     except:
@@ -41,10 +42,11 @@ def getInventory(sellerID):
 
 
 # CREATE INVENTORY FOR NEW USER
-@app.route("/inventory/add/<sellerID>", methods=["POST", "GET", "PUT"])
-def addInventory(sellerID):
+@app.route("/inventory/add", methods=["POST", "GET", "PUT"])
+def addInventory():
     data = request.get_json()
     # store_name = data['storeName']
+    sellerID = data['storeID']
     newFoods = data["foodListings"]
 
     doc_ref = db.collection("inventory").document(sellerID)
@@ -133,28 +135,28 @@ def updateInventory(sellerID):
     newFoods = request.get_json()
     # {
     #     "gyoza": {
-    #         "item_quantity": 6,
-    #         "food_desc": "Yummy Gyoza",
-    #         "food_name": "Fried Gyozas",
+    #         "counter": 6,
+    #         "foodDesc": "Yummy Gyoza",
+    #         "foodName": "Fried Gyozas",
     #         "image": "https://images.unsplash.com/photo-1609183590563-7710ba1f90a9?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80",
-    #         "old_price": "$6.00",
-    #         "current_price": "$3.00",
+    #         "oldPrice": "$6.00",
+    #         "price": "$3.00",
     #     },
     #     "dog": {
-    #         "item_quantity": 10,
-    #         "food_desc": "Delicious Dog",
-    #         "food_name": "Fried dog",
+    #         "counter": 10,
+    #         "foodDesc": "Delicious Dog",
+    #         "foodName": "Fried dog",
     #         "image": "https://images.unsplash.com/photo-1618173745201-8e3bf8978acc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=930&q=80",
-    #         "old_price": "$10.00",
-    #         "current_price": "$5.00",
+    #         "oldPrice": "$10.00",
+    #         "price": "$5.00",
     #     },
     #     "cat": {
-    #         "item_quantity": 10,
-    #         "food_desc": "Delicious cat",
-    #         "food_name": "Fried cat",
+    #         "counter": 10,
+    #         "foodDesc": "Delicious cat",
+    #         "foodName": "Fried cat",
     #         "image": "https://images.unsplash.com/photo-1618173745201-8e3bf8978acc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=930&q=80",
-    #         "old_price": "$10.00",
-    #         "current_price": "$10.00",
+    #         "oldPrice": "$10.00",
+    #         "price": "$10.00",
     #     }
     # }
 
@@ -172,24 +174,25 @@ def updateInventory(sellerID):
                 invSnap.update({food_name: foodDetails})
                 successUpdate += food_name + ", "
             except:
-                return {
+                return jsonify({
                     "code": 500,
                     "message": "Failed to Update {} details. Update terminated".format(
                         food_name
                     ),
-                }
+                })
+
         # NEW DISH
         else:
             try:
                 invSnap.update({food_name: foodDetails})
                 successAdd += food_name + ", "
             except:
-                return {
+                return jsonify({
                     "code": 500,
                     "message": "Failed to Add {} details. Update terminated".format(
                         food_name
                     ),
-                }
+                })
 
     if successUpdate and successAdd:
         message += (
@@ -202,7 +205,7 @@ def updateInventory(sellerID):
     else:
         message += "Succesfully added details of {}".format(successAdd[:-2])
 
-    return {"code": 200, "message": message}
+    return jsonify({"code": 200, "message": message})
 
 
 # DELETE FOOD
@@ -240,8 +243,8 @@ def deleteInventory(sellerID):
 # ENDPT TAKE IN ORDER OBJECT AND COMPARE AGAINST DB TO SEE IF QTY IS SUFFICIENT
 
 
-@app.route("/inventory/verify/<orderID>", methods=["GET", "POST", "PUT"])
-def verifyOrder(orderID):
+@app.route("/inventory/verify", methods=["GET", "POST", "PUT"])
+def verifyOrder():
     
     #VARIABLE NAMES MAY BE WRONG, THE STRUCUTURE OF DATA ABIT WEIRD, I CHANGED STOREID TO EMAIL FIRST SINCE DB HAVENT CHANGE.
     # WHY GOT COUNTER AND QUANTITY 
@@ -278,10 +281,14 @@ def verifyOrder(orderID):
     #     }
     # }
 
-    data = request.json()
+    data = request.get_json()
+    # return data
     storeID = data["order"]["storeID"]
+    print(storeID)
     userInventory = db.collection("inventory").document(storeID).get().to_dict()
-    inventSnap = db.collection("inventory").document(storeID)
+    print(userInventory)
+    # inventSnap = db.collection("inventory").document(storeID).get().to_dict()
+    
 
     successMessage = ""
     failedMessage = ""
@@ -291,33 +298,38 @@ def verifyOrder(orderID):
         foodName = item["foodName"]
 
         orderedQuantity = item["quantity"]
-        inventQuantity = userInventory[foodName]['item_quantity']
+        inventQuantity = userInventory['foodListings'][foodName]['counter']
+        # inventQuantity = inventQuantity['counter']
 
         if orderedQuantity > inventQuantity:
             failedMessage += "Ordered Quantity for {} exceeded limit. Order Process TERMINATED".format(
                 foodName
             )
-            return {
+            return jsonify({
                 "response": "reject order",
                 "code": 400, 
-            }
+            })
 
         else:
             updatedQuantity = inventQuantity - orderedQuantity
-            itemDict = userInventory[foodName]
-            itemDict["item_quantity"] = updatedQuantity
+            itemDict = userInventory['foodListings'][foodName]
+            itemDict["counter"] = updatedQuantity
+            newObject = {
+                foodName : itemDict
+            }
 
             try:
-                inventSnap.update({foodName: itemDict})
+                # userInventory['foodListings'].update({itemDict["counter"]: updatedQuantity})
+                db.collection("inventory").document(storeID).update({"foodListings": userInventory["foodListings"]})
                 successMessage += "Succesfully ordered {} {}.".format(
                     orderedQuantity, foodName
                 )
 
             except:
-                return {
+                return jsonify({
                     "response": "reject order",
                     "code": 500,
-                }
+                })
 
     return {
         "response": "create order",
